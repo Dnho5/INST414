@@ -1,0 +1,51 @@
+---
+title: "Mod 1"
+output: html_document
+date: "2025-02-15"
+---
+
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Read dataset
+data <- read.csv("C:/Users/ndon2/Downloads/WIDdataUS.csv", sep=";", stringsAsFactors=FALSE)
+
+# Rename columns for clarity
+colnames(data) <- c("country", "variable", "percentile", "year", "value", "age", "pop")
+
+# Convert data types to ensure correct filtering
+data$variable <- trimws(tolower(as.character(data$variable)))
+data$percentile <- trimws(tolower(as.character(data$percentile)))
+data$year <- as.numeric(data$year)
+data$value <- as.numeric(data$value)
+
+# Debug: Print unique values to confirm available filtering options
+print("Unique Variables:")
+print(unique(data$variable))
+
+print("Unique Percentiles:")
+print(unique(data$percentile))
+
+# Filtering for Top 1% wealth data (adjusted based on actual available percentiles)
+top1_wealth <- data %>%
+  filter(variable == "ehfcari999" & percentile %in% c("p99p100", "p99.9p100")) %>%
+  arrange(year)
+
+# Debug: Ensure filtered data is not empty
+print("Filtered Data for Top 1% Wealth:")
+print(head(top1_wealth))
+
+# Plot the wealth trend for the Top 1%
+ggplot(top1_wealth, aes(x = year, y = value)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "red") +
+  labs(title = "Wealth Accumulation of the Top 1% (1990-2020)",
+       x = "Year",
+       y = "Wealth Value (in USD)",
+       caption = "Data Source: World Inequality Database") +
+  theme_minimal()
+
+
+```
