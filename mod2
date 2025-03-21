@@ -1,0 +1,28 @@
+import requests
+from bs4 import BeautifulSoup
+import networkx as nx
+
+G = nx.DiGraph()
+base_url = "https://en.wikipedia.org"
+
+def get_links(title):
+    res = requests.get(f"{base_url}/wiki/{title}")
+    soup = BeautifulSoup(res.text, "html.parser")
+    links = soup.select("div#bodyContent a[href^='/wiki/']")
+    valid_links = [a['href'].split("/wiki/")[1] for a in links if ":" not in a['href']]
+    return set(valid_links)
+
+seed = "Computer_science"
+visited = set()
+queue = [seed]
+
+while queue and len(visited) < 50:  # limit size for clarity
+    current = queue.pop(0)
+    if current in visited:
+        continue
+    visited.add(current)
+    neighbors = get_links(current)
+    for neighbor in neighbors:
+        G.add_edge(current, neighbor)
+        if neighbor not in visited:
+            queue.append(neighbor)
